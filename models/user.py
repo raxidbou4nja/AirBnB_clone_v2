@@ -8,7 +8,6 @@ from os import environ
 storage_engine = environ.get("HBNB_TYPE_STORAGE")
 
 
-
 class User(BaseModel, Base):
     """This class defines a user by various attributes"""
     __tablename__ = "users"
