@@ -7,6 +7,7 @@ from models.base_model import Base, BaseModel
 from sqlalchemy import Column, ForeignKey, String
 from sqlalchemy.orm import relationship
 
+
 class City(BaseModel, Base):
     """
     Represents a city for a MySQL database.

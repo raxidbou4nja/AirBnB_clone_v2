@@ -10,6 +10,7 @@ from models.city import City
 from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship
 
+
 class State(BaseModel, Base):
     """
     Represents a state for a MySQL database.
@@ -23,4 +24,6 @@ class State(BaseModel, Base):
         @property
         def cities(self):
             """Get a list of all related City objects."""
-            return [city for city in models.storage.all(City).values() if city.state_id == self.id]
+            cities = models.storage.all(City).values()
+            filcities = [city for city in cities if city.state_id == self.id]
+            return filcities

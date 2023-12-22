@@ -27,14 +27,20 @@ class DBStorage:
             "host": getenv("HBNB_MYSQL_HOST"),
             "db": getenv("HBNB_MYSQL_DB"),
         }
-        self.__engine = create_engine("mysql+mysqldb://{user}:{passwd}@{host}/{db}".
-                                      format(**db_config), pool_pre_ping=True)
+        self.__engine = create_engine(
+            "mysql+mysqldb://{user}:{passwd}@{host}/{db}".
+            format(user=getenv("HBNB_MYSQL_USER"),
+                   passwd=getenv("HBNB_MYSQL_PWD"),
+                   host=getenv("HBNB_MYSQL_HOST"),
+                   db=getenv("HBNB_MYSQL_DB")),
+            pool_pre_ping=True
+        )
 
         if getenv("HBNB_ENV") == "test":
             Base.metadata.drop_all(self.__engine)
 
     def all(self, cls=None):
-        """Query on the current database session all objects of the given class."""
+        """Query on the current database all objects of the given class."""
         classes = [State, City, User, Place, Review, Amenity]
 
         if cls is not None:
@@ -42,7 +48,8 @@ class DBStorage:
                 cls = eval(cls)
             classes = [cls]
 
-        objs = [obj for cls in classes for obj in self.__session.query(cls).all()]
+        objs = [obj for cls in classes
+                for obj in self.__session.query(cls).all()]
         return {"{}.{}".format(type(o).__name__, o.id): o for o in objs}
 
     def new(self, obj):
@@ -61,8 +68,8 @@ class DBStorage:
     def reload(self):
         """Create all tables in the database and initialize a new session."""
         Base.metadata.create_all(self.__engine)
-        session_factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
-        Session = scoped_session(session_factory)
+        ses_factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
+        Session = scoped_session(ses_factory)
         self.__session = Session()
 
     def close(self):
