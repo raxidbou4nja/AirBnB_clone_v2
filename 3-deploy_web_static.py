@@ -54,9 +54,12 @@ def do_deploy(archive_path):
         return False
 
 
+archive_path = do_pack()
+
+
 def deploy():
     """Pack and deploy"""
-    archive_path = do_pack()
+
     return do_deploy(archive_path) if archive_path else False
 
 
