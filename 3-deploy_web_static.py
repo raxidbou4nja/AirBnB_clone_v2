@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 """
 Pack static content and deploy on servers
 """
