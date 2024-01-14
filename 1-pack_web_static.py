@@ -8,6 +8,7 @@ from fabric.api import local
 from datetime import datetime
 import os
 
+
 def do_pack():
     """
     compresses the contents of the web_static folder into a .tgz archive.
@@ -28,6 +29,7 @@ def do_pack():
         return archive_path
     except Exception as e:
         return None
+
 
 if __name__ == "__main__":
     do_pack()
