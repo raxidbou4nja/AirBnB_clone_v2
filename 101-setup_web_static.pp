@@ -1,48 +1,68 @@
-# Puppet script to configure Nginx server
-
-exec {'apt-get-update':
-  command => '/usr/bin/apt-get update'
-}
-
-package {'apache2.2-common':
-  ensure  => 'absent',
-  require => Exec['apt-get-update']
-}
+# nginx_setup.pp
 
 package { 'nginx':
-  ensure  => 'installed',
-  require => Package['apache2.2-common']
+  ensure => installed,
 }
 
-service {'nginx':
-  ensure  =>  'running',
-  require => file_line['LOCATION SETUP']
-}
-
-file { ['/data', '/data/web_static', '/data/web_static/shared', '/data/web_static/releases', '/data/web_static/releases/test'] :
-  ensure  => 'directory',
+file { '/data':
+  ensure  => directory,
   owner   => 'ubuntu',
   group   => 'ubuntu',
-  require =>  Package['nginx']
+  mode    => '0755',
+}
+
+file { '/data/web_static':
+  ensure  => directory,
+  owner   => 'ubuntu',
+  group   => 'ubuntu',
+  mode    => '0755',
+}
+
+file { '/data/web_static/releases':
+  ensure  => directory,
+  owner   => 'ubuntu',
+  group   => 'ubuntu',
+  mode    => '0755',
+}
+
+file { '/data/web_static/shared':
+  ensure  => directory,
+  owner   => 'ubuntu',
+  group   => 'ubuntu',
+  mode    => '0755',
+}
+
+file { '/data/web_static/releases/test':
+  ensure  => directory,
+  owner   => 'ubuntu',
+  group   => 'ubuntu',
+  mode    => '0755',
 }
 
 file { '/data/web_static/releases/test/index.html':
-  ensure  => 'present',
-  content => 'Hello AirBnb',
-  require =>  Package['nginx']
+  ensure  => present,
+  content => '<html><head><title>Test Page</title></head><body>Hello, this is a test page!</body></html>',
+  owner   => 'ubuntu',
+  group   => 'ubuntu',
+  mode    => '0644',
 }
 
 file { '/data/web_static/current':
-  ensure => 'link',
-  target => '/data/web_static/releases/test',
-  force  => true
+  ensure  => link,
+  target  => '/data/web_static/releases/test/',
+  force   => true,
 }
 
-file_line { 'LOCATION SETUP ':
-  ensure  => 'present',
-  path    => '/etc/nginx/sites-enabled/default',
-  line    => 'location /hbnb_static/ { alias /data/web_static/current/; autoindex off; } location / { ',
-  match   => '^\s+location+',
-  require => Package['nginx'],
-  notify  => Service['nginx'],
+file_line { 'nginx_config':
+  path   => '/etc/nginx/sites-available/default',
+  line   => '  location /hbnb_static/ {',
+  match  => '^server {',
+  after  => '  }',
+  notify => Service['nginx'],
+}
+
+service { 'nginx':
+  ensure    => running,
+  enable    => true,
+  subscribe => File_line['nginx_config'],
 }
