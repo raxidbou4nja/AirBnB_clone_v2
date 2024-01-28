@@ -2,31 +2,21 @@
 """
 Defines the Place class.
 """
-
 import models
 from os import getenv
 from models.base_model import Base, BaseModel
 from models.amenity import Amenity
 from models.review import Review
-from sqlalchemy import (
-    Column, Float, ForeignKey, Integer, String, Table
-)
+from sqlalchemy import Column, Float, ForeignKey, Integer, String, Table
 from sqlalchemy.orm import relationship
 
 association_table = Table(
     "place_amenity", Base.metadata,
-    Column("place_id", String(60),
-           ForeignKey("places.id"), primary_key=True, nullable=False),
-    Column("amenity_id", String(60),
-           ForeignKey("amenities.id"), primary_key=True, nullable=False)
+    Column("place_id", String(60), ForeignKey("places.id"), primary_key=True, nullable=False),
+    Column("amenity_id", String(60), ForeignKey("amenities.id"), primary_key=True, nullable=False)
 )
 
-
 class Place(BaseModel, Base):
-    """
-    Represents a Place for a MySQL database.
-    Inherits from SQLAlchemy Base and links to the MySQL table places.
-    """
     __tablename__ = "places"
     city_id = Column(String(60), ForeignKey("cities.id"), nullable=False)
     user_id = Column(String(60), ForeignKey("users.id"), nullable=False)
@@ -38,13 +28,10 @@ class Place(BaseModel, Base):
     price_by_night = Column(Integer, default=0)
     latitude = Column(Float)
     longitude = Column(Float)
+
     reviews = relationship("Review", backref="place", cascade="delete")
-    amenities = relationship(
-        "Amenity",
-        secondary="place_amenity",
-        viewonly=False,
-        overlaps="place_amenities"
-    )
+    amenities = relationship("Amenity", secondary=association_table, viewonly=False)
+
     amenity_ids = []
 
     if getenv("HBNB_TYPE_STORAGE", None) != "db":
