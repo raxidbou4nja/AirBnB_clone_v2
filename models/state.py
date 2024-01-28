@@ -31,5 +31,5 @@ class State(BaseModel, Base):
     @property
     def cities(self):
         """getters from storage linked to the current State"""
-        city_objs = models.storage.all(City)
-        return [city for city in city_objs.values() if city.state_id == self.id]
+        city_obj = models.storage.all(City)
+        return [city for city in city_obj.values() if city.state_id == self.id]
