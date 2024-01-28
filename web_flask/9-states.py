@@ -1,39 +1,36 @@
 #!/usr/bin/python3
+# -*- coding: utf-8 -*-
 """
-Script that starts a Flask web application
-"""
+Created on Tue Sep  1 14:42:23 2020
 
-from flask import Flask, render_template
+@author: Robinson Montes
+"""
 from models import storage
 from models.state import State
-from models.city import City
-
+from flask import Flask, render_template
 app = Flask(__name__)
 
 
 @app.teardown_appcontext
-def teardown_db(exception):
-    """Remove the current SQLAlchemy session."""
+def appcontext_teardown(self):
+    """use storage for fetching data from the storage engine
+    """
     storage.close()
 
 
 @app.route('/states', strict_slashes=False)
-def list_states():
-    """Display a list of all State objects."""
-    states = storage.all(State).values()
-    sorted_states = sorted(states, key=lambda x: x.name)
-    return render_template('9-states.html', states=sorted_states)
+def state_info():
+    """Display a HTML page inside the tag BODY"""
+    return render_template('7-states_list.html',
+                           states=storage.all(State))
 
 
-@app.route('/states/<id>', strict_slashes=False)
-def show_state(id):
-    """Display detailed information about a specific State."""
-    state = storage.get(State, id)
-    if state:
-        cities = sorted(state.cities, key=lambda x: x.name)
-        return render_template('9-states.html', state=state, cities=cities)
-    else:
-        return render_template('9-states.html', not_found=True)
+@app.route('/states/<string:id>', strict_slashes=False)
+def state_id(id=None):
+    """Display a HTML page inside the tag BODY"""
+    return render_template('9-states.html',
+                           states=storage.all(State)
+                           .get('State.{}'.format(id)))
 
 
 if __name__ == '__main__':
